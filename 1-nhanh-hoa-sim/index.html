@@ -493,12 +493,15 @@ body{font-family:-apple-system,'Segoe UI',Arial,sans-serif;background:#f0f0f5;co
   /* AFF_START */
   function getSettings(){ return {aff1:"https://s.shopee.vn/qiGzzmoa9",aff2:"https://s.shopee.vn/1BL7zCxKTi"}; }
 /* AFF_END */
-  function getAffUrl(post){
-    // Ưu tiên URL thật được lưu thẳng trong post.affiliate
-    if(post && post.affiliate && post.affiliate.indexOf('http')===0) return post.affiliate;
+  function getAffUrl(post, which){
+    which = which || 1; // 1 = lần popup thứ nhất, 2 = lần thứ hai
+    // Ưu tiên URL thật lưu thẳng trong post (post.affiliate=aff1, post.affiliate2=aff2)
+    var primary   = which===2 ? (post && post.affiliate2) : (post && post.affiliate);
+    var secondary = which===2 ? (post && post.affiliate)  : (post && post.affiliate2);
+    if(primary && primary.indexOf('http')===0) return primary;
+    if(secondary && secondary.indexOf('http')===0) return secondary;
     // Fallback: đọc từ getSettings (bot sẽ inject aff1/aff2 vào đây)
     var s = getSettings();
-    var which = (post && post.affiliate==='__affiliate2__') ? 2 : 1;
     if(which===2 && s.aff2) return s.aff2;
     if(s.aff1) return s.aff1;
     if(s.aff2) return s.aff2;
@@ -528,7 +531,7 @@ body{font-family:-apple-system,'Segoe UI',Arial,sans-serif;background:#f0f0f5;co
     if(popupCount[pid] >= 2){ if(onClose) onClose(); return; }
     popupCount[pid]++;
     var overlay = document.getElementById('popup-overlay');
-    var affUrl = getAffUrl(post);
+    var affUrl = getAffUrl(post, popupCount[pid]); // 1 = lần đầu → aff1, 2 = lần sau → aff2
     var fired = false;
 
     // Reset animation mỗi lần show
@@ -556,6 +559,22 @@ body{font-family:-apple-system,'Segoe UI',Arial,sans-serif;background:#f0f0f5;co
 
     overlay.addEventListener('touchend', handleTap, {passive:false});
     overlay.addEventListener('click', handleTap);
+
+    // Nút X: chỉ đóng bảng, KHÔNG redirect. Phải chặn nổi bọt (stopPropagation)
+    // để sự kiện click không lan lên overlay và kích hoạt handleTap ở trên.
+    var closeBtn = document.getElementById('popup-close');
+    function handleClose(e){
+      e.preventDefault();
+      e.stopPropagation();
+      if(fired) return;
+      fired = true;
+      overlay.classList.remove('show');
+      overlay.removeEventListener('touchend', handleTap);
+      overlay.removeEventListener('click', handleTap);
+      if(onClose) onClose();
+    }
+    closeBtn.addEventListener('touchend', handleClose, {passive:false});
+    closeBtn.addEventListener('click', handleClose);
   }
 
   // ── RENDER ────────────────────────────────────────────────────────────
@@ -772,7 +791,7 @@ body{font-family:-apple-system,'Segoe UI',Arial,sans-serif;background:#f0f0f5;co
 })();
 
 /* POSTS_DATA_START */
-var POSTS=[{"id": "1785336056415", "title": "chuyện hoa sim", "content": "từ 1 cành cây thành 1 cây to", "blocks": [], "video": "https://iframe.mediadelivery.net/embed/715749/eee494dc-45da-460f-9fe1-24e27fa7d1e4", "date": "2026-07-29T14:40:56.415257Z", "affiliate": "https://s.shopee.vn/qiGzzmoa9", "affiliate2": "https://s.shopee.vn/1BL7zCxKTi", "slug": "1-nhanh-hoa-sim"}];
+var POSTS=[{"id": "1785362334134", "title": "chuyện như chưa bắt đầu", "content": "", "blocks": [], "video": "https://iframe.mediadelivery.net/embed/715749/814ad14d-ef91-43fe-b194-df3bc66e0e6f", "date": "2026-07-29T21:58:54.134395Z", "affiliate": "https://s.shopee.vn/qiGzzmoa9", "affiliate2": "https://s.shopee.vn/1BL7zCxKTi", "slug": "cai-gi-den-se-den"}, {"id": "1785336056415", "title": "chuyện hoa sim", "content": "từ 1 cành cây thành 1 cây to", "blocks": [], "video": "https://iframe.mediadelivery.net/embed/715749/eee494dc-45da-460f-9fe1-24e27fa7d1e4", "date": "2026-07-29T14:40:56.415257Z", "affiliate": "https://s.shopee.vn/qiGzzmoa9", "affiliate2": "https://s.shopee.vn/1BL7zCxKTi", "slug": "1-nhanh-hoa-sim"}];
 /* POSTS_DATA_END */
 
 
