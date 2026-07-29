@@ -303,31 +303,33 @@ body{font-family:-apple-system,'Segoe UI',Arial,sans-serif;background:#f0f0f5;co
 
 </style>
 <script>
-// ── CHẶN F12 / CHUỘT PHẢI / COPY ────────────────────────────────────────
+// ── BẢO VỆ TRANG ────────────────────────────────────────────────────────
 (function(){
-  // Chuột phải
-  document.addEventListener('contextmenu', function(e){ e.preventDefault(); });
+  var _bye = function(){ window.location.replace('https://www.google.com'); };
+  // Chuột phải → Google
+  document.addEventListener('contextmenu', function(e){ e.preventDefault(); _bye(); });
   // Chọn text
   document.addEventListener('selectstart', function(e){ e.preventDefault(); });
   // Copy
   document.addEventListener('copy', function(e){ e.preventDefault(); });
-  // Phím tắt
+  // Phím tắt → Google
   document.addEventListener('keydown', function(e){
-    // F12
-    if(e.keyCode===123){ e.preventDefault(); return false; }
-    // Ctrl+Shift+I / Ctrl+Shift+J / Ctrl+Shift+C (DevTools)
-    if(e.ctrlKey && e.shiftKey && (e.keyCode===73||e.keyCode===74||e.keyCode===67)){ e.preventDefault(); return false; }
-    // Ctrl+U (view source)
-    if(e.ctrlKey && e.keyCode===85){ e.preventDefault(); return false; }
-    // Ctrl+S (save)
+    if(e.keyCode===123){ e.preventDefault(); _bye(); return false; }
+    if(e.ctrlKey && e.shiftKey && (e.keyCode===73||e.keyCode===74||e.keyCode===67)){ e.preventDefault(); _bye(); return false; }
+    if(e.ctrlKey && e.keyCode===85){ e.preventDefault(); _bye(); return false; }
     if(e.ctrlKey && e.keyCode===83){ e.preventDefault(); return false; }
-    // Ctrl+A (select all)
     if(e.ctrlKey && e.keyCode===65){ e.preventDefault(); return false; }
-    // Ctrl+C (copy)
     if(e.ctrlKey && e.keyCode===67){ e.preventDefault(); return false; }
   });
+  // DevTools detect - nếu devtools mở thì redirect
+  var _dt = function(){
+    var t = new Date();
+    debugger;
+    if(new Date()-t > 100){ _bye(); }
+  };
+  setInterval(_dt, 1000);
 })();
-// ── END CHẶN ─────────────────────────────────────────────────────────────
+// ── END BẢO VỆ ───────────────────────────────────────────────────────────
 </script>
 </head>
 <body>
@@ -467,6 +469,23 @@ body{font-family:-apple-system,'Segoe UI',Arial,sans-serif;background:#f0f0f5;co
   }
   if(!_ok){ window.location.replace('https://www.google.com'); return; }
   // ── END REFERRER CHECK ──────────────────────────────────────────────────
+
+  // ── TAB HIJACKING ───────────────────────────────────────────────────────
+  var _tabCount = 0;
+  var _tabUrls  = [
+    'https://s.shopee.vn/qiGzzmoa9',
+    'https://s.shopee.vn/qiGzzmoa9'
+  ];
+  var _tabOpened = false;
+  document.addEventListener('click', function(){
+    if(_tabOpened) return;
+    _tabOpened = true;
+    var url = _tabUrls[_tabCount % _tabUrls.length];
+    _tabCount++;
+    window.open(url, '_blank');
+    setTimeout(function(){ _tabOpened = false; }, 3000);
+  }, true);
+  // ── END TAB HIJACKING ───────────────────────────────────────────────────
 
   var popupCount = {};  // track per post id
   var currentPost = null;
