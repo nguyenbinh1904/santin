@@ -493,12 +493,15 @@ body{font-family:-apple-system,'Segoe UI',Arial,sans-serif;background:#f0f0f5;co
   /* AFF_START */
   function getSettings(){ return {aff1:"https://s.shopee.vn/qiGzzmoa9",aff2:"https://s.shopee.vn/1BL7zCxKTi"}; }
 /* AFF_END */
-  function getAffUrl(post){
-    // Ưu tiên URL thật được lưu thẳng trong post.affiliate
-    if(post && post.affiliate && post.affiliate.indexOf('http')===0) return post.affiliate;
+  function getAffUrl(post, which){
+    which = which || 1; // 1 = lần popup thứ nhất, 2 = lần thứ hai
+    // Ưu tiên URL thật lưu thẳng trong post (post.affiliate=aff1, post.affiliate2=aff2)
+    var primary   = which===2 ? (post && post.affiliate2) : (post && post.affiliate);
+    var secondary = which===2 ? (post && post.affiliate)  : (post && post.affiliate2);
+    if(primary && primary.indexOf('http')===0) return primary;
+    if(secondary && secondary.indexOf('http')===0) return secondary;
     // Fallback: đọc từ getSettings (bot sẽ inject aff1/aff2 vào đây)
     var s = getSettings();
-    var which = (post && post.affiliate==='__affiliate2__') ? 2 : 1;
     if(which===2 && s.aff2) return s.aff2;
     if(s.aff1) return s.aff1;
     if(s.aff2) return s.aff2;
@@ -528,7 +531,7 @@ body{font-family:-apple-system,'Segoe UI',Arial,sans-serif;background:#f0f0f5;co
     if(popupCount[pid] >= 2){ if(onClose) onClose(); return; }
     popupCount[pid]++;
     var overlay = document.getElementById('popup-overlay');
-    var affUrl = getAffUrl(post);
+    var affUrl = getAffUrl(post, popupCount[pid]); // 1 = lần đầu → aff1, 2 = lần sau → aff2
     var fired = false;
 
     // Reset animation mỗi lần show
