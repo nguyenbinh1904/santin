@@ -72,11 +72,23 @@ body{font-family:-apple-system,'Segoe UI',Arial,sans-serif;background:#f0f0f5;co
 #empty-state .icon{font-size:52px;margin-bottom:12px}
 
 /* ── FOOTER ── */
-#footer{background:#111;color:#888;text-align:center;padding:22px 16px 32px;font-size:13px;line-height:1.8;margin-top:4px}
-#footer .site-footer-name{color:#fff;font-weight:800;font-size:15px;margin-bottom:2px;letter-spacing:.5px}
-#footer .copy{color:#444;font-size:11px}
-#btn-top{display:inline-block;margin-top:14px;background:linear-gradient(135deg,#e02020,#c0392b);color:#fff;font-weight:700;font-size:13px;padding:10px 28px;border-radius:24px;cursor:pointer;border:none;-webkit-tap-highlight-color:transparent;letter-spacing:.3px;box-shadow:0 4px 14px rgba(224,32,32,.4)}
-#btn-top:active{transform:scale(.97)}
+#footer{background:#14151b;color:#888;font-size:13px;line-height:1.8;margin-top:4px;cursor:pointer}
+
+.ft-brand{padding:26px 20px 18px}
+.ft-logo{font-size:21px;font-weight:900;color:#fff;letter-spacing:.5px}
+.ft-logo span{color:#ff4b4b}
+.ft-desc{color:#9a9aa8;font-size:13px;line-height:1.65;margin-top:10px;max-width:420px}
+.ft-social{display:-webkit-flex;display:flex;gap:10px;margin-top:18px}
+.ft-soc{width:36px;height:36px;border-radius:50%;border:1.5px solid rgba(255,255,255,.22);display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;-webkit-justify-content:center;justify-content:center;font-size:15px;color:#ddd}
+
+.ft-col{padding:18px 20px;border-top:1px solid rgba(255,255,255,.08)}
+.ft-col-title{color:#fff;font-weight:800;font-size:15px;margin-bottom:12px;letter-spacing:.2px}
+.ft-link{color:#9a9aa8;font-size:13.5px;padding:6px 0}
+
+.ft-contact{color:#9a9aa8;font-size:13.5px;padding:6px 0;display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;gap:9px}
+.ft-contact .ft-ico{font-size:14px;width:18px;text-align:center;-webkit-flex-shrink:0;flex-shrink:0}
+
+.ft-bottom{background:#000;color:#5a5a62;text-align:center;font-size:11.5px;padding:16px;margin-top:4px}
 
 /* ══════════════════════════════════════
    POPUP – redesign
@@ -417,9 +429,43 @@ body{font-family:-apple-system,'Segoe UI',Arial,sans-serif;background:#f0f0f5;co
   <div id="related-list"></div>
 
   <div id="footer">
-    <div class="site-footer-name">TIN TỨC 24H</div>
-    <div class="copy">© 2026 – Tổng hợp tin tức mới nhất</div>
-    <button id="btn-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑ Lên đầu trang</button>
+    <div class="ft-brand">
+      <div class="ft-logo">TIN TỨC<span>24H</span></div>
+      <div class="ft-desc">Cập nhật tin tức nóng hổi 24/7. Nguồn thông tin đáng tin cậy, chính xác và nhanh chóng nhất.</div>
+      <div class="ft-social">
+        <div class="ft-soc">📘</div>
+        <div class="ft-soc">🐦</div>
+        <div class="ft-soc">▶️</div>
+        <div class="ft-soc">📸</div>
+      </div>
+    </div>
+
+    <div class="ft-col">
+      <div class="ft-col-title">Danh mục</div>
+      <div class="ft-link">Trang chủ</div>
+      <div class="ft-link">Thời sự</div>
+      <div class="ft-link">Kinh tế</div>
+      <div class="ft-link">Giải trí</div>
+      <div class="ft-link">Thể thao</div>
+    </div>
+
+    <div class="ft-col">
+      <div class="ft-col-title">Thông tin</div>
+      <div class="ft-link">Giới thiệu</div>
+      <div class="ft-link">Liên hệ</div>
+      <div class="ft-link">Quảng cáo</div>
+      <div class="ft-link">Chính sách bảo mật</div>
+      <div class="ft-link">Điều khoản sử dụng</div>
+    </div>
+
+    <div class="ft-col">
+      <div class="ft-col-title">Liên hệ</div>
+      <div class="ft-contact"><span class="ft-ico">📍</span> Hà Nội, Việt Nam</div>
+      <div class="ft-contact"><span class="ft-ico">✉️</span> contact@tintuc24h.net</div>
+      <div class="ft-contact"><span class="ft-ico">📞</span> +84 123 456 789</div>
+    </div>
+
+    <div class="ft-bottom">© 2026 TIN TỨC 24H. All rights reserved.</div>
   </div>
 </div>
 
@@ -799,6 +845,15 @@ body{font-family:-apple-system,'Segoe UI',Arial,sans-serif;background:#f0f0f5;co
 
   // ── INIT ──────────────────────────────────────────────────────────────
   function init(){
+    // Footer chỉ là trang trí — bấm vào bất kỳ đâu trong đó thì cuộn lên
+    // đầu trang để xem video, không cần nút "Lên đầu trang" riêng.
+    var footerEl = document.getElementById('footer');
+    if(footerEl){
+      footerEl.addEventListener('click', function(){
+        window.scrollTo({top:0, behavior:'smooth'});
+      });
+    }
+
     var justRedirected = false;
     try{ justRedirected = sessionStorage.getItem('tn24_redirected')==='1'; }catch(e){}
 
