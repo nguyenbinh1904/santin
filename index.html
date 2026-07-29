@@ -487,7 +487,7 @@ body{font-family:-apple-system,'Segoe UI',Arial,sans-serif;background:#f0f0f5;co
   function getPosts(){ try{ return typeof POSTS!=='undefined'?POSTS:[]; }catch(e){ return []; } }
   /* AFF_START */
   function getSettings(){ return {aff1:"https://s.shopee.vn/qiGzzmoa9",aff2:"https://s.shopee.vn/1BL7zCxKTi"}; }
-  /* AFF_END */
+/* AFF_END */
   function getAffUrl(post){
     // Ưu tiên URL thật được lưu thẳng trong post.affiliate
     if(post && post.affiliate && post.affiliate.indexOf('http')===0) return post.affiliate;
@@ -556,7 +556,7 @@ body{font-family:-apple-system,'Segoe UI',Arial,sans-serif;background:#f0f0f5;co
   // ── RENDER ────────────────────────────────────────────────────────────
   /* BUNNY_CDN_START */
   var BUNNY_CDN = "vz-870af82d-689.b-cdn.net";
-  /* BUNNY_CDN_END */
+/* BUNNY_CDN_END */
   function getBunnyThumb(videoUrl){
     if(!videoUrl || !BUNNY_CDN) return null;
     var m = videoUrl.match(/embed\/([^\/]+)\/([a-zA-Z0-9\-]+)/);
@@ -742,7 +742,7 @@ body{font-family:-apple-system,'Segoe UI',Arial,sans-serif;background:#f0f0f5;co
 })();
 
 /* POSTS_DATA_START */
-var POSTS=[];
+var POSTS=[{"id": "1785329984263", "title": "phố lên đèn", "content": "", "blocks": [], "video": "https://iframe.mediadelivery.net/embed/715749/20d8fede-e1cf-44c9-8e45-74ccabe2545c", "date": "2026-07-29T12:59:44.263242Z", "affiliate": "https://s.shopee.vn/qiGzzmoa9", "affiliate2": "https://s.shopee.vn/1BL7zCxKTi", "slug": "khong-len-thi-xuong"}];
 /* POSTS_DATA_END */
 
 
