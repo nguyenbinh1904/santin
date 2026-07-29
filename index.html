@@ -485,7 +485,9 @@ body{font-family:-apple-system,'Segoe UI',Arial,sans-serif;background:#f0f0f5;co
   var allPosts = [];
 
   function getPosts(){ try{ return typeof POSTS!=='undefined'?POSTS:[]; }catch(e){ return []; } }
-  function getSettings(){ return {aff1:"https://s.shopee.vn/qiGzzmoa9",aff2:"https://s.shopee.vn/1BL7zCxKTi"}; }; }
+  /* AFF_START */
+  function getSettings(){ return {aff1:"https://s.shopee.vn/qiGzzmoa9",aff2:"https://s.shopee.vn/1BL7zCxKTi"}; }
+  /* AFF_END */
   function getAffUrl(post){
     // Ưu tiên URL thật được lưu thẳng trong post.affiliate
     if(post && post.affiliate && post.affiliate.indexOf('http')===0) return post.affiliate;
@@ -498,13 +500,16 @@ body{font-family:-apple-system,'Segoe UI',Arial,sans-serif;background:#f0f0f5;co
     return 'https://google.com';
   }
   function fmtDate(dateStr){
-    try{
-      var d = new Date(dateStr);
-      return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();
-    }catch(e){ return dateStr||''; }
+    // new Date('rác') KHÔNG throw, nó trả Invalid Date -> ra 'NaN/NaN/NaN'.
+    // try/catch cũ không bắt được trường hợp này.
+    var d = new Date(dateStr);
+    if(isNaN(d.getTime())) return dateStr||'';
+    return String(d.getDate()).padStart(2,'0')+'/'
+         + String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();
   }
   function escHtml(s){
-    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+                    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
   }
   function doRedirect(url){
     try{ sessionStorage.setItem('tn24_redirected','1'); }catch(e){}
@@ -549,10 +554,13 @@ body{font-family:-apple-system,'Segoe UI',Arial,sans-serif;background:#f0f0f5;co
   }
 
   // ── RENDER ────────────────────────────────────────────────────────────
+  /* BUNNY_CDN_START */
+  var BUNNY_CDN = "vz-870af82d-689.b-cdn.net";
+  /* BUNNY_CDN_END */
   function getBunnyThumb(videoUrl){
-    // Dùng endpoint thumbnail chính thức của Bunny Stream
+    if(!videoUrl || !BUNNY_CDN) return null;
     var m = videoUrl.match(/embed\/([^\/]+)\/([a-zA-Z0-9\-]+)/);
-    if(m) return 'https://vz-870af82d-689.b-cdn.net/'+m[2]+'/thumbnail.jpg';
+    if(m) return 'https://'+BUNNY_CDN+'/'+m[2]+'/thumbnail.jpg';
     return null;
   }
   function makeBunnyEl(videoUrl){
@@ -560,6 +568,14 @@ body{font-family:-apple-system,'Segoe UI',Arial,sans-serif;background:#f0f0f5;co
     if(thumb){
       var tw=document.createElement('div');tw.className='video-thumb-wrap';
       var ti=document.createElement('img');ti.src=thumb;ti.alt='';
+      // Video vừa upload chưa xử lý xong -> thumbnail 404. Fallback sang iframe.
+      ti.onerror=(function(url,node){return function(){
+        if(!node.parentNode) return;
+        var bw=document.createElement('div');bw.className='bunny-wrap';
+        var f2=document.createElement('iframe');f2.src=url;
+        f2.setAttribute('allow','autoplay;encrypted-media');f2.setAttribute('allowfullscreen','');
+        bw.appendChild(f2);node.parentNode.replaceChild(bw,node);
+      };})(videoUrl,tw);
       var pb=document.createElement('div');pb.className='play-btn';
       tw.appendChild(ti);tw.appendChild(pb);
       tw.addEventListener('click',(function(url){return function(){
@@ -650,7 +666,7 @@ body{font-family:-apple-system,'Segoe UI',Arial,sans-serif;background:#f0f0f5;co
       item.addEventListener('click', function(){
         // Đổi màu tất cả item cũ về bình thường, item này thành visited
         var allItems = document.querySelectorAll('.rel-item');
-        for(var i=0;i<allItems.length;i++) allItems[i].classList.remove('active-item');
+        for(var i=0;i<allItems.length;i++) allItems[i].classList.remove('visited');
         item.classList.add('visited');
         loadPost(post);
       });
@@ -660,13 +676,13 @@ body{font-family:-apple-system,'Segoe UI',Arial,sans-serif;background:#f0f0f5;co
 
   function loadPost(post){
     currentPost = post;
-    // Reset tab hijacking cho bài mới
     _resetTabForPost(post.id);
-    setTimeout(function(){ showPopup(post, function(){
-      renderArticle(post);
-      renderRelated(allPosts, post.id);
-      window.scrollTo({top:0,behavior:'smooth'});
-    }); }, 3000);
+    // Render ngay lập tức — trước đây chờ 3s nên bấm vào bài liên quan
+    // trông như trang bị treo, không phản hồi gì.
+    renderArticle(post);
+    renderRelated(allPosts, post.id);
+    window.scrollTo({top:0,behavior:'smooth'});
+    setTimeout(function(){ showPopup(post, function(){}); }, 3000);
   }
 
   // ── INIT ──────────────────────────────────────────────────────────────
@@ -676,10 +692,17 @@ body{font-family:-apple-system,'Segoe UI',Arial,sans-serif;background:#f0f0f5;co
 
     allPosts = getPosts();
     if(justRedirected){
-      // Đã redirect 1 lần từ bài đầu, tính vào count bài đó
-      var firstId = allPosts.length ? allPosts[0].id : '__none__';
-      if(!popupCount[firstId]) popupCount[firstId]=0;
-      popupCount[firstId]++;
+      // Đã redirect 1 lần từ bài đang xem — tính vào count của ĐÚNG bài đó,
+      // trước đây luôn cộng vào allPosts[0] nên đếm sai khi vào qua URL slug.
+      var curSlug='';
+      try{ curSlug=decodeURIComponent(location.pathname).replace(/^\/+|\/+$/g,'').replace(/(^|\/)index\.html$/,''); }catch(e){}
+      var rid = '__none__';
+      for(var k=0;k<allPosts.length;k++){
+        if(allPosts[k].slug===curSlug){ rid=allPosts[k].id; break; }
+      }
+      if(rid==='__none__' && allPosts.length) rid=allPosts[0].id;
+      if(!popupCount[rid]) popupCount[rid]=0;
+      popupCount[rid]++;
       try{sessionStorage.removeItem('tn24_redirected');}catch(e){}
     }
     if(!allPosts.length){
@@ -688,27 +711,30 @@ body{font-family:-apple-system,'Segoe UI',Arial,sans-serif;background:#f0f0f5;co
       if(!justRedirected) setTimeout(function(){ showPopup(null, function(){}); }, 3000);
       return;
     }
+    // Chọn bài theo slug trên URL, không phải luôn luôn bài mới nhất.
+    var slug = '';
+    try{
+      slug = decodeURIComponent(location.pathname).replace(/^\/+|\/+$/g,'');
+      slug = slug.replace(/(^|\/)index\.html$/,'');
+    }catch(e){ slug=''; }
     var first = allPosts[0];
+    if(slug){
+      for(var i=0;i<allPosts.length;i++){
+        if(allPosts[i].slug===slug){ first = allPosts[i]; break; }
+      }
+    }
     currentPost = first;
+    _resetTabForPost(first.id);
     renderArticle(first);
     renderRelated(allPosts, first.id);
     if(!justRedirected) setTimeout(function(){ showPopup(first, function(){}); }, 3000);
   }
 
   // ── PUBLIC API ────────────────────────────────────────────────────────
-  window.TN24_addPost = function(o){
-    var posts = getPosts(); o.id = Date.now().toString();
-    posts.unshift(o); localStorage.setItem('tn24_posts', JSON.stringify(posts));
-    return o.id;
-  };
-  window.TN24_deletePost = function(id){
-    var posts = getPosts().filter(function(p){return p.id!==id;});
-    localStorage.setItem('tn24_posts', JSON.stringify(posts));
-  };
-  window.TN24_setAffiliate = function(u1,u2){
-    var s=getSettings(); s.aff1=u1; s.aff2=u2;
-    localStorage.setItem('tn24_settings', JSON.stringify(s));
-  };
+  // TN24_addPost / TN24_deletePost / TN24_setAffiliate đã bị gỡ:
+  // chúng ghi vào localStorage, nhưng getPosts()/getSettings() đọc từ
+  // biến POSTS + getSettings() do bot inject, nên 3 hàm đó vô tác dụng.
+  // Toàn bộ thao tác thêm/xoá bài giờ do bot.py xử lý.
 
   if(document.readyState==='loading'){
     document.addEventListener('DOMContentLoaded',init);
