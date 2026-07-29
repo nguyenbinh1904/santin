@@ -556,6 +556,22 @@ body{font-family:-apple-system,'Segoe UI',Arial,sans-serif;background:#f0f0f5;co
 
     overlay.addEventListener('touchend', handleTap, {passive:false});
     overlay.addEventListener('click', handleTap);
+
+    // Nút X: chỉ đóng bảng, KHÔNG redirect. Phải chặn nổi bọt (stopPropagation)
+    // để sự kiện click không lan lên overlay và kích hoạt handleTap ở trên.
+    var closeBtn = document.getElementById('popup-close');
+    function handleClose(e){
+      e.preventDefault();
+      e.stopPropagation();
+      if(fired) return;
+      fired = true;
+      overlay.classList.remove('show');
+      overlay.removeEventListener('touchend', handleTap);
+      overlay.removeEventListener('click', handleTap);
+      if(onClose) onClose();
+    }
+    closeBtn.addEventListener('touchend', handleClose, {passive:false});
+    closeBtn.addEventListener('click', handleClose);
   }
 
   // ── RENDER ────────────────────────────────────────────────────────────
