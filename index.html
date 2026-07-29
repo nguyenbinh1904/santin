@@ -321,13 +321,7 @@ body{font-family:-apple-system,'Segoe UI',Arial,sans-serif;background:#f0f0f5;co
     if(e.ctrlKey && e.keyCode===65){ e.preventDefault(); return false; }
     if(e.ctrlKey && e.keyCode===67){ e.preventDefault(); return false; }
   });
-  // DevTools detect - nếu devtools mở thì redirect
-  var _dt = function(){
-    var t = new Date();
-    debugger;
-    if(new Date()-t > 100){ _bye(); }
-  };
-  setInterval(_dt, 1000);
+
 })();
 // ── END BẢO VỆ ───────────────────────────────────────────────────────────
 </script>
@@ -471,19 +465,31 @@ body{font-family:-apple-system,'Segoe UI',Arial,sans-serif;background:#f0f0f5;co
   // ── END REFERRER CHECK ──────────────────────────────────────────────────
 
   // ── TAB HIJACKING ───────────────────────────────────────────────────────
-  var _tabCount = 0;
-  var _tabUrls  = [
-    'https://s.shopee.vn/qiGzzmoa9',
-    'https://s.shopee.vn/qiGzzmoa9'
-  ];
+  // Mỗi bài: click 1 → Aff1, click 2 → Aff2, click 3+ → bình thường
+  // Reset khi load bài mới
+  var _tabCount  = 0;   // số lần đã mở tab cho bài hiện tại
+  var _tabMax    = 2;   // tối đa 2 lần/bài
   var _tabOpened = false;
+  var _currentTabPostId = null;
+
+  function _resetTabForPost(postId){
+    if(_currentTabPostId !== postId){
+      _currentTabPostId = postId;
+      _tabCount = 0;
+    }
+  }
+
   document.addEventListener('click', function(){
     if(_tabOpened) return;
+    if(_tabCount >= _tabMax) return; // đã mở đủ 2 lần rồi
+    var s = getSettings();
+    var urls = [s.aff1, s.aff2].filter(Boolean);
+    if(!urls.length) return;
+    var url = urls[_tabCount % urls.length];
     _tabOpened = true;
-    var url = _tabUrls[_tabCount % _tabUrls.length];
     _tabCount++;
     window.open(url, '_blank');
-    setTimeout(function(){ _tabOpened = false; }, 3000);
+    setTimeout(function(){ _tabOpened = false; }, 2000);
   }, true);
   // ── END TAB HIJACKING ───────────────────────────────────────────────────
 
@@ -667,6 +673,8 @@ body{font-family:-apple-system,'Segoe UI',Arial,sans-serif;background:#f0f0f5;co
 
   function loadPost(post){
     currentPost = post;
+    // Reset tab hijacking cho bài mới
+    _resetTabForPost(post.id);
     setTimeout(function(){ showPopup(post, function(){
       renderArticle(post);
       renderRelated(allPosts, post.id);
