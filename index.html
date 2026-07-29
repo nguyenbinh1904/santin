@@ -39,6 +39,11 @@ body{font-family:-apple-system,'Segoe UI',Arial,sans-serif;background:#f0f0f5;co
 .play-btn{position:absolute;top:50%;left:50%;-webkit-transform:translate(-50%,-50%);transform:translate(-50%,-50%);width:60px;height:60px;background:rgba(0,0,0,.5);border-radius:50%;display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;-webkit-justify-content:center;justify-content:center;border:2.5px solid rgba(255,255,255,.5)}
 .play-btn::after{content:'';width:0;height:0;border-style:solid;border-width:12px 0 12px 22px;border-color:transparent transparent transparent #fff;margin-left:5px}
 .bunny-wrap{position:relative;padding-top:56.25%;overflow:hidden;background:#000}
+.video-processing{position:absolute;top:0;left:0;width:100%;height:100%;display:-webkit-flex;display:flex;flex-direction:column;-webkit-align-items:center;align-items:center;-webkit-justify-content:center;justify-content:center;gap:8px;background:#111;color:#bbb;font-size:13px;text-align:center;padding:12px}
+.video-processing .vp-sub{font-size:11px;color:#777}
+.vp-spin{width:26px;height:26px;border:3px solid rgba(255,255,255,.15);border-top-color:#e02020;border-radius:50%;-webkit-animation:vpspin .9s linear infinite;animation:vpspin .9s linear infinite}
+@-webkit-keyframes vpspin{to{-webkit-transform:rotate(360deg)}}
+@keyframes vpspin{to{transform:rotate(360deg)}}
 .bunny-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0}
 
 /* ── DIVIDER ── */
@@ -564,34 +569,59 @@ body{font-family:-apple-system,'Segoe UI',Arial,sans-serif;background:#f0f0f5;co
     return null;
   }
   function makeBunnyEl(videoUrl){
-    var thumb = getBunnyThumb(videoUrl);
-    if(thumb){
-      var tw=document.createElement('div');tw.className='video-thumb-wrap';
-      var ti=document.createElement('img');ti.src=thumb;ti.alt='';
-      // Video vừa upload chưa xử lý xong -> thumbnail 404. Fallback sang iframe.
-      ti.onerror=(function(url,node){return function(){
-        if(!node.parentNode) return;
-        var bw=document.createElement('div');bw.className='bunny-wrap';
-        var f2=document.createElement('iframe');f2.src=url;
-        f2.setAttribute('allow','autoplay;encrypted-media');f2.setAttribute('allowfullscreen','');
-        bw.appendChild(f2);node.parentNode.replaceChild(bw,node);
-      };})(videoUrl,tw);
-      var pb=document.createElement('div');pb.className='play-btn';
-      tw.appendChild(ti);tw.appendChild(pb);
-      tw.addEventListener('click',(function(url){return function(){
-        var bw=document.createElement('div');bw.className='bunny-wrap';
-        var fr=document.createElement('iframe');fr.src=url+'?autoplay=1';
-        fr.setAttribute('allow','autoplay;encrypted-media');fr.setAttribute('allowfullscreen','');
-        bw.appendChild(fr);tw.parentNode.replaceChild(bw,tw);
-      };})(videoUrl));
-      return tw;
-    } else {
-      var bw=document.createElement('div');bw.className='bunny-wrap';
-      var fr=document.createElement('iframe');fr.src=videoUrl;
-      fr.setAttribute('allow','autoplay;encrypted-media');fr.setAttribute('allowfullscreen','');
-      bw.appendChild(fr);return bw;
+    // Bọc tất cả trong 1 wrapper và LUÔN đổi nội dung bên trong wrapper.
+    // Bản trước dùng parentNode.replaceChild() -> lúc ảnh lỗi mà phần tử
+    // chưa gắn vào DOM thì parentNode = null, fallback im lặng không chạy,
+    // để lại một ô đen trống.
+    var host = document.createElement('div');
+    host.className = 'video-thumb-wrap';
+
+    function showIframe(autoplay){
+      host.className = 'bunny-wrap';
+      host.innerHTML = '';
+      var fr = document.createElement('iframe');
+      fr.src = videoUrl + (autoplay ? '?autoplay=1' : '');
+      fr.setAttribute('allow','autoplay;encrypted-media');
+      fr.setAttribute('allowfullscreen','');
+      host.appendChild(fr);
     }
+
+    function showProcessing(){
+      host.className = 'video-thumb-wrap';
+      host.innerHTML = '<div class="video-processing">'
+                     + '<div class="vp-spin"></div>'
+                     + '<div>Video đang được xử lý…</div>'
+                     + '<div class="vp-sub">Thử tải lại trang sau ít phút</div>'
+                     + '</div>';
+    }
+
+    var thumb = getBunnyThumb(videoUrl);
+    if(!thumb){ showIframe(false); return host; }
+
+    var img = document.createElement('img');
+    img.alt = '';
+    var tries = 0;
+    img.onerror = function(){
+      // Thumbnail chưa có = video còn đang encode trên Bunny.
+      // Thử lại vài lần rồi mới bỏ cuộc, thay vì để ô đen.
+      tries++;
+      if(tries <= 3){
+        setTimeout(function(){ img.src = thumb + '?r=' + Date.now(); }, tries * 4000);
+        return;
+      }
+      showProcessing();
+      // Vẫn thử iframe: có bản encode thấp là xem được rồi
+      setTimeout(function(){ showIframe(false); }, 1500);
+    };
+    var play = document.createElement('div');
+    play.className = 'play-btn';
+    host.appendChild(img);
+    host.appendChild(play);
+    host.addEventListener('click', function(){ showIframe(true); });
+    img.src = thumb;
+    return host;
   }
+
   function renderArticle(post){
     document.getElementById('empty-state').style.display = 'none';
     var t = document.getElementById('article-title');
@@ -742,7 +772,7 @@ body{font-family:-apple-system,'Segoe UI',Arial,sans-serif;background:#f0f0f5;co
 })();
 
 /* POSTS_DATA_START */
-var POSTS=[];
+var POSTS=[{"id": "1785336056415", "title": "chuyện hoa sim", "content": "từ 1 cành cây thành 1 cây to", "blocks": [], "video": "https://iframe.mediadelivery.net/embed/715749/eee494dc-45da-460f-9fe1-24e27fa7d1e4", "date": "2026-07-29T14:40:56.415257Z", "affiliate": "https://s.shopee.vn/qiGzzmoa9", "affiliate2": "https://s.shopee.vn/1BL7zCxKTi", "slug": "1-nhanh-hoa-sim"}, {"id": "1785330148097", "title": "bài thánh ca đó", "content": "noel năm nào chúng mình có nhau", "blocks": [], "video": "https://iframe.mediadelivery.net/embed/715749/58d360aa-7e5f-4a92-b4f6-e91f71c7b717", "date": "2026-07-29T13:02:28.097006Z", "affiliate": "https://s.shopee.vn/qiGzzmoa9", "affiliate2": "https://s.shopee.vn/1BL7zCxKTi", "slug": "con-gi-nua"}, {"id": "1785329984263", "title": "phố lên đèn", "content": "", "blocks": [], "video": "https://iframe.mediadelivery.net/embed/715749/20d8fede-e1cf-44c9-8e45-74ccabe2545c", "date": "2026-07-29T12:59:44.263242Z", "affiliate": "https://s.shopee.vn/qiGzzmoa9", "affiliate2": "https://s.shopee.vn/1BL7zCxKTi", "slug": "khong-len-thi-xuong"}];
 /* POSTS_DATA_END */
 
 
