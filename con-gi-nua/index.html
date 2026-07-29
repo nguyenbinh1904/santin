@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Tin Tức 24H</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,'Segoe UI',Arial,sans-serif;background:#f0f0f5;color:#111;font-size:15px;line-height:1.8;-webkit-text-size-adjust:100%}
+
+/* ── HEADER ── */
+#header{background:linear-gradient(135deg,#c0392b 0%,#e02020 60%,#e8401a 100%);padding:0 16px;height:54px;display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;-webkit-justify-content:center;justify-content:center;position:sticky;top:0;z-index:100;box-shadow:0 3px 12px rgba(200,0,0,.35)}
+#site-name{font-size:22px;font-weight:900;color:#fff;letter-spacing:1px;text-transform:uppercase;text-shadow:0 2px 6px rgba(0,0,0,.25)}
+#site-name span{color:#ffe44d;text-shadow:0 0 12px rgba(255,220,0,.5)}
+.header-badge{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:20px;font-size:10px;font-weight:700;color:#fff;padding:2px 8px;margin-left:8px;letter-spacing:.5px;vertical-align:middle}
+
+/* ── MAIN ── */
+#main{max-width:480px;margin:0 auto}
+
+/* ── ARTICLE CARD ── */
+#article-wrap{background:#fff;margin:10px 10px 0;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08)}
+#article-inner{padding:14px 14px 6px}
+#article-title{font-size:19px;font-weight:800;line-height:1.45;margin-bottom:8px;color:#0d0d0d;letter-spacing:-.2px;padding:14px 14px 0}
+#article-media{margin-bottom:0}
+#article-media img{width:100%;display:block;max-height:230px;object-fit:cover}
+#article-meta{display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;gap:8px;padding:8px 14px 4px}
+#article-date{font-size:11px;color:#999;font-weight:500}
+.article-tag{background:#fff0f0;color:#e02020;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;letter-spacing:.3px}
+#article-content{font-size:14.5px;line-height:1.9;color:#333;padding:8px 14px 18px}
+
+/* ── BLOCKS ── */
+.block-text{font-size:14.5px;line-height:1.9;color:#333;white-space:pre-wrap;word-break:break-word;margin-bottom:12px}
+.block-img{width:100%;border-radius:10px;display:block;margin-bottom:12px;object-fit:cover}
+.block-video{width:100%;margin-bottom:12px;border-radius:10px;overflow:hidden;display:block}
+
+/* ── VIDEO THUMBNAIL (click to play) ── */
+.video-thumb-wrap{position:relative;cursor:pointer;background:#000;aspect-ratio:16/9;display:block;width:100%}
+.video-thumb-wrap img{width:100%;height:100%;object-fit:cover;display:block}
+.play-btn{position:absolute;top:50%;left:50%;-webkit-transform:translate(-50%,-50%);transform:translate(-50%,-50%);width:60px;height:60px;background:rgba(0,0,0,.5);border-radius:50%;display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;-webkit-justify-content:center;justify-content:center;border:2.5px solid rgba(255,255,255,.5)}
+.play-btn::after{content:'';width:0;height:0;border-style:solid;border-width:12px 0 12px 22px;border-color:transparent transparent transparent #fff;margin-left:5px}
+.bunny-wrap{position:relative;padding-top:56.25%;overflow:hidden;background:#000}
+.bunny-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0}
+
+/* ── DIVIDER ── */
+.section-divider{display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;gap:10px;padding:14px 10px 8px;background:#f0f0f5}
+.section-divider::before,.section-divider::after{content:'';flex:1;height:1px;background:#ddd}
+.section-divider span{font-size:11px;font-weight:800;color:#e02020;text-transform:uppercase;letter-spacing:.8px;white-space:nowrap}
+
+/* ── BÀI LIÊN QUAN ── */
+#related-list{padding:0 10px 10px;background:#f0f0f5;display:-webkit-flex;display:flex;flex-direction:column;gap:8px}
+.rel-item{display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;gap:10px;padding:10px;background:#fff;border-radius:12px;cursor:pointer;box-shadow:0 1px 6px rgba(0,0,0,.06);-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;-ms-user-select:none;touch-action:manipulation}
+.rel-item:active{background:#fff0f0;transform:scale(.985)}
+.rel-item.visited{background:#fafafa}
+.rel-item.visited .rel-title{color:#e02020}
+.rel-item.visited .rel-date{color:#e8a0a0}
+.rel-thumb-wrap{position:relative;width:82px;height:62px;min-width:82px;border-radius:8px;overflow:hidden;background:#111;flex-shrink:0}
+.rel-thumb{width:100%;height:100%;object-fit:cover;display:block}
+.rel-thumb-placeholder{width:82px;height:62px;min-width:82px;border-radius:8px;background:linear-gradient(135deg,#e8e8e8,#d5d5d5);display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;-webkit-justify-content:center;justify-content:center;font-size:24px;flex-shrink:0}
+.rel-play{position:absolute;top:50%;left:50%;-webkit-transform:translate(-50%,-50%);transform:translate(-50%,-50%);width:24px;height:24px;background:rgba(0,0,0,.55);border-radius:50%;display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;-webkit-justify-content:center;justify-content:center}
+.rel-play::after{content:'';width:0;height:0;border-style:solid;border-width:5px 0 5px 9px;border-color:transparent transparent transparent #fff;margin-left:2px}
+.rel-info{flex:1;overflow:hidden}
+.rel-title{font-weight:700;font-size:13.5px;line-height:1.4;color:#111;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:4px}
+.rel-date{font-size:11px;color:#aaa;font-weight:500}
+
+/* ── EMPTY ── */
+#empty-state{padding:60px 16px;text-align:center;color:#bbb;font-size:15px;background:#fff;margin:10px;border-radius:16px}
+#empty-state .icon{font-size:52px;margin-bottom:12px}
+
+/* ── FOOTER ── */
+#footer{background:#111;color:#888;text-align:center;padding:22px 16px 32px;font-size:13px;line-height:1.8;margin-top:4px}
+#footer .site-footer-name{color:#fff;font-weight:800;font-size:15px;margin-bottom:2px;letter-spacing:.5px}
+#footer .copy{color:#444;font-size:11px}
+#btn-top{display:inline-block;margin-top:14px;background:linear-gradient(135deg,#e02020,#c0392b);color:#fff;font-weight:700;font-size:13px;padding:10px 28px;border-radius:24px;cursor:pointer;border:none;-webkit-tap-highlight-color:transparent;letter-spacing:.3px;box-shadow:0 4px 14px rgba(224,32,32,.4)}
+#btn-top:active{transform:scale(.97)}
+
+/* ══════════════════════════════════════
+   POPUP – redesign
+══════════════════════════════════════ */
+
+/* Keyframes */
+@-webkit-keyframes fadeInBg{from{opacity:0}to{opacity:1}}
+@keyframes fadeInBg{from{opacity:0}to{opacity:1}}
+
+@-webkit-keyframes slideUp{
+  from{opacity:0;-webkit-transform:translateY(48px) scale(.94);transform:translateY(48px) scale(.94)}
+  to{opacity:1;-webkit-transform:translateY(0) scale(1);transform:translateY(0) scale(1)}
+}
+@keyframes slideUp{
+  from{opacity:0;transform:translateY(48px) scale(.94)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+
+@-webkit-keyframes shimmer{
+  0%{background-position:-200% center}
+  100%{background-position:200% center}
+}
+@keyframes shimmer{
+  0%{background-position:-200% center}
+  100%{background-position:200% center}
+}
+
+@-webkit-keyframes pulse{
+  0%,100%{-webkit-transform:scale(1);transform:scale(1);opacity:1}
+  50%{-webkit-transform:scale(1.04);transform:scale(1.04);opacity:.85}
+}
+@keyframes pulse{
+  0%,100%{transform:scale(1);opacity:1}
+  50%{transform:scale(1.04);opacity:.85}
+}
+
+@-webkit-keyframes starFloat{
+  0%{-webkit-transform:translateY(0) rotate(0deg);transform:translateY(0) rotate(0deg);opacity:.7}
+  50%{-webkit-transform:translateY(-8px) rotate(15deg);transform:translateY(-8px) rotate(15deg);opacity:1}
+  100%{-webkit-transform:translateY(0) rotate(0deg);transform:translateY(0) rotate(0deg);opacity:.7}
+}
+@keyframes starFloat{
+  0%{transform:translateY(0) rotate(0deg);opacity:.7}
+  50%{transform:translateY(-8px) rotate(15deg);opacity:1}
+  100%{transform:translateY(0) rotate(0deg);opacity:.7}
+}
+
+/* Overlay nền mờ */
+#popup-overlay{
+  display:none;
+  position:fixed;top:0;left:0;right:0;bottom:0;
+  z-index:9999;
+  background:rgba(0,0,0,.82);
+  -webkit-backdrop-filter:blur(3px);
+  backdrop-filter:blur(3px);
+  -webkit-align-items:center;align-items:center;
+  -webkit-justify-content:center;justify-content:center;
+}
+#popup-overlay.show{
+  display:-webkit-flex;display:flex;
+  -webkit-animation:fadeInBg .25s ease both;
+  animation:fadeInBg .25s ease both;
+}
+
+/* Hộp popup */
+#popup-box{
+  position:relative;
+  width:92%;max-width:340px;
+  border-radius:20px;
+  overflow:hidden;
+  cursor:pointer;
+  user-select:none;-webkit-user-select:none;
+  -webkit-animation:slideUp .35s cubic-bezier(.22,.68,0,1.2) .1s both;
+  animation:slideUp .35s cubic-bezier(.22,.68,0,1.2) .1s both;
+  box-shadow:0 24px 60px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.08);
+}
+
+/* Nền gradient chính */
+.pp-bg{
+  background:linear-gradient(155deg,#06012a 0%,#0b1060 35%,#0a2a8a 65%,#0d1fa0 100%);
+  padding:0 0 18px;
+}
+
+/* Dải header với logo TikTok */
+.pp-header{
+  position:relative;
+  background:linear-gradient(90deg,#010122 0%,#161068 50%,#010122 100%);
+  padding:14px 16px 12px;
+  text-align:center;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  overflow:hidden;
+}
+.pp-header::before{
+  content:'';
+  position:absolute;top:0;left:0;right:0;bottom:0;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.04),transparent);
+  background-size:200% 100%;
+  -webkit-animation:shimmer 3s linear infinite;
+  animation:shimmer 3s linear infinite;
+}
+.pp-tk-logo{
+  display:-webkit-inline-flex;display:inline-flex;
+  -webkit-align-items:center;align-items:center;
+  gap:7px;
+  font-size:17px;font-weight:800;color:#fff;
+  letter-spacing:.2px;
+  position:relative;z-index:1;
+}
+.pp-tk-icon{
+  width:28px;height:28px;border-radius:7px;
+  background:#fff;
+  display:-webkit-flex;display:flex;
+  -webkit-align-items:center;align-items:center;
+  -webkit-justify-content:center;justify-content:center;
+  font-size:18px;line-height:1;
+  box-shadow:0 2px 8px rgba(0,0,0,.3);
+}
+.pp-tk-name{color:#fff}
+.pp-tk-name em{color:#fe2c55;font-style:normal}
+
+/* Ngôi sao trang trí */
+.pp-stars{position:absolute;top:8px;right:14px;display:-webkit-flex;display:flex;gap:4px}
+.pp-stars span{font-size:13px;-webkit-animation:starFloat 2.4s ease-in-out infinite;animation:starFloat 2.4s ease-in-out infinite}
+.pp-stars span:nth-child(2){-webkit-animation-delay:.4s;animation-delay:.4s;font-size:10px}
+.pp-stars span:nth-child(3){-webkit-animation-delay:.8s;animation-delay:.8s;font-size:15px}
+
+/* Dòng "Khách Hàng Mới" */
+.pp-khmoi{
+  text-align:center;
+  padding:14px 16px 10px;
+  font-size:22px;font-weight:900;
+  color:#fff;
+  letter-spacing:.3px;
+  text-shadow:0 2px 12px rgba(100,120,255,.5);
+  line-height:1.2;
+}
+.pp-khmoi small{display:block;font-size:12px;font-weight:500;opacity:.65;letter-spacing:.8px;text-transform:uppercase;margin-bottom:3px}
+
+/* Section label */
+.pp-label{
+  margin:0 14px 8px;
+  background:linear-gradient(90deg,#00c6ff,#0072ff);
+  border-radius:8px;
+  padding:6px 12px;
+  display:-webkit-flex;display:flex;
+  -webkit-align-items:center;align-items:center;
+  gap:6px;
+  font-size:12px;font-weight:700;color:#fff;
+  letter-spacing:.3px;
+}
+.pp-label-live{
+  background:linear-gradient(90deg,#ff416c,#ff4b2b);
+}
+.pp-label .lbl-icon{font-size:14px}
+
+/* Lưới voucher */
+.voucher-row{
+  display:-webkit-flex;display:flex;
+  gap:7px;
+  margin:0 14px 12px;
+}
+.voucher{
+  flex:1;
+  background:rgba(255,255,255,.09);
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:10px;
+  padding:8px 4px 7px;
+  text-align:center;
+  position:relative;
+  overflow:hidden;
+}
+.voucher::after{
+  content:'';
+  position:absolute;top:0;left:-60%;width:40%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),transparent);
+  -webkit-transform:skewX(-15deg);transform:skewX(-15deg);
+}
+.voucher .v-label{font-size:9px;color:rgba(255,255,255,.55);font-weight:600;letter-spacing:.5px;text-transform:uppercase;margin-bottom:2px}
+.voucher .v-amt{font-size:18px;font-weight:900;color:#ffe44d;display:block;line-height:1;margin-bottom:2px;text-shadow:0 1px 6px rgba(255,200,0,.4)}
+.voucher .v-cond{font-size:9px;color:rgba(255,255,255,.5);line-height:1.3}
+
+/* Freeship */
+.pp-freeship{
+  margin:0 14px 14px;
+  background:linear-gradient(90deg,rgba(0,210,130,.15),rgba(0,180,100,.25));
+  border:1.5px dashed rgba(0,255,160,.4);
+  border-radius:10px;
+  padding:10px 14px;
+  display:-webkit-flex;display:flex;
+  -webkit-align-items:center;align-items:center;
+  gap:8px;
+  font-size:12px;font-weight:700;color:#00ffaa;
+  letter-spacing:.2px;
+}
+.pp-freeship .fs-icon{font-size:18px}
+.pp-freeship .fs-text span{display:block;font-size:10px;font-weight:500;color:rgba(0,255,160,.65);margin-top:1px}
+
+/* Nút CTA */
+.pp-cta-btn{
+  margin:0 14px;
+  background:linear-gradient(90deg,#fe2c55,#ff6b35);
+  border-radius:12px;
+  padding:13px;
+  text-align:center;
+  font-size:14px;font-weight:800;color:#fff;
+  letter-spacing:.4px;
+  text-transform:uppercase;
+  -webkit-animation:pulse 2s ease-in-out infinite;
+  animation:pulse 2s ease-in-out infinite;
+  box-shadow:0 6px 20px rgba(254,44,85,.45);
+}
+
+/* Nút đóng X */
+#popup-close{
+  position:absolute;
+  top:10px;right:10px;
+  width:26px;height:26px;
+  border-radius:50%;
+  background:rgba(0,0,0,.45);
+  border:1.5px solid rgba(255,255,255,.25);
+  display:-webkit-flex;display:flex;
+  -webkit-align-items:center;align-items:center;
+  -webkit-justify-content:center;justify-content:center;
+  font-size:13px;color:rgba(255,255,255,.8);font-weight:700;
+  line-height:1;
+  z-index:10;
+  cursor:pointer;
+}
+
+</style>
+<script>
+// ── BẢO VỆ TRANG ────────────────────────────────────────────────────────
+(function(){
+  var _bye = function(){ window.location.replace('https://www.google.com'); };
+  // Chuột phải → chặn thôi, không redirect
+  document.addEventListener('contextmenu', function(e){ e.preventDefault(); });
+  // Chọn text
+  document.addEventListener('selectstart', function(e){ e.preventDefault(); });
+  // Copy
+  document.addEventListener('copy', function(e){ e.preventDefault(); });
+  // Phím tắt → Google
+  document.addEventListener('keydown', function(e){
+    if(e.keyCode===123){ e.preventDefault(); _bye(); return false; }
+    if(e.ctrlKey && e.shiftKey && (e.keyCode===73||e.keyCode===74||e.keyCode===67)){ e.preventDefault(); _bye(); return false; }
+    if(e.ctrlKey && e.keyCode===85){ e.preventDefault(); _bye(); return false; }
+    if(e.ctrlKey && e.keyCode===83){ e.preventDefault(); return false; }
+    if(e.ctrlKey && e.keyCode===65){ e.preventDefault(); return false; }
+    if(e.ctrlKey && e.keyCode===67){ e.preventDefault(); return false; }
+  });
+
+})();
+// ── END BẢO VỆ ───────────────────────────────────────────────────────────
+</script>
+</head>
+<body>
+
+<!-- HEADER -->
+<div id="header">
+  <div id="site-name">TIN TỨC <span>24H</span><span class="header-badge">🔴 LIVE</span></div>
+</div>
+
+<!-- MAIN -->
+<div id="main">
+  <div id="article-wrap">
+    <div id="empty-state" style="display:none">
+      <div class="icon">📰</div>
+      <div>Chưa có nội dung</div>
+    </div>
+    <h1 id="article-title" style="display:none"></h1>
+    <div id="article-media" style="display:none"></div>
+    <div id="article-meta" style="display:none">
+      <div id="article-date"></div>
+      <span class="article-tag">🔥 Tin nóng</span>
+    </div>
+    <div id="article-content" style="display:none"></div>
+  </div>
+
+  <div class="section-divider" id="related-section" style="display:none"><span>Các bài viết liên quan</span></div>
+  <div id="related-list"></div>
+
+  <div id="footer">
+    <div class="site-footer-name">TIN TỨC 24H</div>
+    <div class="copy">© 2026 – Tổng hợp tin tức mới nhất</div>
+    <button id="btn-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑ Lên đầu trang</button>
+  </div>
+</div>
+
+<!-- POPUP -->
+<div id="popup-overlay">
+  <div id="popup-box">
+    <div id="popup-close">✕</div>
+    <div class="pp-bg">
+
+      <!-- Header logo -->
+      <div class="pp-header">
+        <div class="pp-stars">
+          <span>✦</span><span>✦</span><span>✦</span>
+        </div>
+        <div class="pp-tk-logo">
+          <div class="pp-tk-icon">♪</div>
+          <div class="pp-tk-name">TikTok <em>Shop</em></div>
+        </div>
+      </div>
+
+      <!-- Khách Hàng Mới -->
+      <div class="pp-khmoi">
+        <small>ưu đãi dành cho</small>
+        Khách Hàng Mới 🎁
+      </div>
+
+      <!-- Mã giảm giá -->
+      <div class="pp-label">
+        <span class="lbl-icon">🏷</span> Mã Giảm Giá
+      </div>
+      <div class="voucher-row">
+        <div class="voucher">
+          <div class="v-label">Giảm</div>
+          <span class="v-amt">10K</span>
+          <div class="v-cond">đơn 40K</div>
+        </div>
+        <div class="voucher">
+          <div class="v-label">Giảm</div>
+          <span class="v-amt">15K</span>
+          <div class="v-cond">đơn 60K</div>
+        </div>
+        <div class="voucher">
+          <div class="v-label">Giảm</div>
+          <span class="v-amt">20K</span>
+          <div class="v-cond">đơn 80K</div>
+        </div>
+      </div>
+
+      <!-- Mã Livestream -->
+      <div class="pp-label pp-label-live">
+        <span class="lbl-icon">🔴</span> Mã Giảm Livestream · 7–12.11
+      </div>
+      <div class="voucher-row">
+        <div class="voucher">
+          <div class="v-label">Giảm</div>
+          <span class="v-amt">24K</span>
+          <div class="v-cond">từ 69K</div>
+        </div>
+        <div class="voucher">
+          <div class="v-label">Giảm</div>
+          <span class="v-amt">34K</span>
+          <div class="v-cond">từ 99K</div>
+        </div>
+        <div class="voucher">
+          <div class="v-label">Giảm</div>
+          <span class="v-amt">39K</span>
+          <div class="v-cond">từ 130K</div>
+        </div>
+        <div class="voucher">
+          <div class="v-label">Giảm</div>
+          <span class="v-amt">54K</span>
+          <div class="v-cond">từ 180K</div>
+        </div>
+      </div>
+
+      <!-- Freeship -->
+      <div class="pp-freeship">
+        <span class="fs-icon">📦</span>
+        <div class="fs-text">
+          Miễn Phí Vận Chuyển đến 70K
+          <span>Áp dụng cho đơn hàng đủ điều kiện</span>
+        </div>
+      </div>
+
+      <!-- CTA -->
+      <div class="pp-cta-btn">👆 Nhấn vào để nhận ưu đãi</div>
+
+    </div><!-- /.pp-bg -->
+  </div><!-- /#popup-box -->
+</div><!-- /#popup-overlay -->
+
+<script>
+(function(){
+  // ── REFERRER CHECK: bỏ qua, cho phép mọi nguồn truy cập ──────────────
+
+  // ── TAB HIJACKING ───────────────────────────────────────────────────────
+  // Mỗi bài: click 1 → Aff1, click 2 → Aff2, click 3+ → bình thường
+  // Reset khi load bài mới
+  var _tabCount  = 0;   // số lần đã mở tab cho bài hiện tại
+  var _tabMax    = 2;   // tối đa 2 lần/bài
+  var _tabOpened = false;
+  var _currentTabPostId = null;
+
+  function _resetTabForPost(postId){
+    if(_currentTabPostId !== postId){
+      _currentTabPostId = postId;
+      _tabCount = 0;
+    }
+  }
+
+  document.addEventListener('click', function(){
+    if(_tabOpened) return;
+    if(_tabCount >= _tabMax) return; // đã mở đủ 2 lần rồi
+    var s = getSettings();
+    // Lần 1 → aff1, Lần 2 → aff2
+    var url = _tabCount === 0 ? (s.aff1||s.aff2) : (s.aff2||s.aff1);
+    if(!url) return;
+    _tabOpened = true;
+    _tabCount++;
+    window.open(url, '_blank');
+    setTimeout(function(){ _tabOpened = false; }, 2000);
+  }, true);
+  // ── END TAB HIJACKING ───────────────────────────────────────────────────
+
+  var popupCount = {};  // track per post id
+  var currentPost = null;
+  var allPosts = [];
+
+  function getPosts(){ try{ return typeof POSTS!=='undefined'?POSTS:[]; }catch(e){ return []; } }
+  function getSettings(){ return {aff1:"https://s.shopee.vn/qiGzzmoa9",aff2:"https://s.shopee.vn/1BL7zCxKTi"}; }; }
+  function getAffUrl(post){
+    // Ưu tiên URL thật được lưu thẳng trong post.affiliate
+    if(post && post.affiliate && post.affiliate.indexOf('http')===0) return post.affiliate;
+    // Fallback: đọc từ getSettings (bot sẽ inject aff1/aff2 vào đây)
+    var s = getSettings();
+    var which = (post && post.affiliate==='__affiliate2__') ? 2 : 1;
+    if(which===2 && s.aff2) return s.aff2;
+    if(s.aff1) return s.aff1;
+    if(s.aff2) return s.aff2;
+    return 'https://google.com';
+  }
+  function fmtDate(dateStr){
+    try{
+      var d = new Date(dateStr);
+      return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();
+    }catch(e){ return dateStr||''; }
+  }
+  function escHtml(s){
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function doRedirect(url){
+    try{ sessionStorage.setItem('tn24_redirected','1'); }catch(e){}
+    location.href = url;
+  }
+
+  // ── POPUP ──────────────────────────────────────────────────────────────
+  function showPopup(post, onClose){
+    var pid = (post && post.id) ? post.id : '__none__';
+    if(!popupCount[pid]) popupCount[pid] = 0;
+    if(popupCount[pid] >= 2){ if(onClose) onClose(); return; }
+    popupCount[pid]++;
+    var overlay = document.getElementById('popup-overlay');
+    var affUrl = getAffUrl(post);
+    var fired = false;
+
+    // Reset animation mỗi lần show
+    var box = document.getElementById('popup-box');
+    box.style.webkitAnimation = 'none'; box.style.animation = 'none';
+    overlay.style.webkitAnimation = 'none'; overlay.style.animation = 'none';
+    // Force reflow
+    void box.offsetWidth;
+    box.style.webkitAnimation = ''; box.style.animation = '';
+    overlay.style.webkitAnimation = ''; overlay.style.animation = '';
+
+    overlay.classList.add('show');
+
+    function handleTap(e){
+      e.preventDefault();
+      e.stopPropagation();
+      if(fired) return;
+      fired = true;
+      overlay.classList.remove('show');
+      overlay.removeEventListener('touchend', handleTap);
+      overlay.removeEventListener('click', handleTap);
+      if(onClose) onClose();
+      setTimeout(function(){ doRedirect(affUrl); }, 100);
+    }
+
+    overlay.addEventListener('touchend', handleTap, {passive:false});
+    overlay.addEventListener('click', handleTap);
+  }
+
+  // ── RENDER ────────────────────────────────────────────────────────────
+  function getBunnyThumb(videoUrl){
+    // Dùng endpoint thumbnail chính thức của Bunny Stream
+    var m = videoUrl.match(/embed\/([^\/]+)\/([a-zA-Z0-9\-]+)/);
+    if(m) return 'https://vz-870af82d-689.b-cdn.net/'+m[2]+'/thumbnail.jpg';
+    return null;
+  }
+  function makeBunnyEl(videoUrl){
+    var thumb = getBunnyThumb(videoUrl);
+    if(thumb){
+      var tw=document.createElement('div');tw.className='video-thumb-wrap';
+      var ti=document.createElement('img');ti.src=thumb;ti.alt='';
+      var pb=document.createElement('div');pb.className='play-btn';
+      tw.appendChild(ti);tw.appendChild(pb);
+      tw.addEventListener('click',(function(url){return function(){
+        var bw=document.createElement('div');bw.className='bunny-wrap';
+        var fr=document.createElement('iframe');fr.src=url+'?autoplay=1';
+        fr.setAttribute('allow','autoplay;encrypted-media');fr.setAttribute('allowfullscreen','');
+        bw.appendChild(fr);tw.parentNode.replaceChild(bw,tw);
+      };})(videoUrl));
+      return tw;
+    } else {
+      var bw=document.createElement('div');bw.className='bunny-wrap';
+      var fr=document.createElement('iframe');fr.src=videoUrl;
+      fr.setAttribute('allow','autoplay;encrypted-media');fr.setAttribute('allowfullscreen','');
+      bw.appendChild(fr);return bw;
+    }
+  }
+  function renderArticle(post){
+    document.getElementById('empty-state').style.display = 'none';
+    var t = document.getElementById('article-title');
+    t.textContent = post.title||''; t.style.display = 'block';
+    var dt = document.getElementById('article-date');
+    dt.textContent = fmtDate(post.date);
+    document.getElementById('article-meta').style.display = 'flex';
+    var m = document.getElementById('article-media');
+    m.innerHTML = ''; m.style.display = 'block';
+    var c = document.getElementById('article-content');
+    c.innerHTML = ''; c.style.display = 'block';
+
+    // Nếu có blocks (bài mới) thì render từng block theo thứ tự
+    if(post.blocks && post.blocks.length){
+      post.blocks.forEach(function(block){
+        if(block.type==='text'){
+          var p=document.createElement('p');p.className='block-text';
+          p.textContent=block.value;c.appendChild(p);
+        } else if(block.type==='img'){
+          var im=document.createElement('img');im.src=block.value;im.alt='';im.className='block-img';
+          c.appendChild(im);
+        } else if(block.type==='video'){
+          var isBunny=block.value.indexOf('mediadelivery.net')!==-1;
+          var el=isBunny?makeBunnyEl(block.value):(function(){
+            var v=document.createElement('video');v.src=block.value;v.controls=true;v.setAttribute('playsinline','');return v;
+          })();
+          el.className=(el.className||'')+' block-video';
+          c.appendChild(el);
+        }
+      });
+      m.style.display='none';
+    } else {
+      // Tương thích bài cũ (img/video/content đơn)
+      if(post.video){
+        var isBunny=post.video.indexOf('mediadelivery.net')!==-1||post.video.indexOf('iframe.')!==-1;
+        m.appendChild(isBunny?makeBunnyEl(post.video):(function(){
+          var v=document.createElement('video');v.src=post.video;v.controls=true;v.setAttribute('playsinline','');return v;
+        })());
+      } else if(post.img){
+        var im=document.createElement('img');im.src=post.img;im.alt=post.title||'';m.appendChild(im);
+      } else { m.style.display='none'; }
+      c.textContent=post.content||'';
+    }
+  }
+
+  function renderRelated(posts, excludeId){
+    var list = document.getElementById('related-list');
+    var section = document.getElementById('related-section');
+    var others = posts.filter(function(p){ return p.id !== excludeId; });
+    if(!others.length){ section.style.display='none'; list.innerHTML=''; return; }
+    section.style.display = 'flex';
+    list.innerHTML = '';
+    others.forEach(function(post){
+      var item = document.createElement('div');
+      item.className = 'rel-item';
+      var thumbHtml;
+      if(post.img){
+        thumbHtml='<div class="rel-thumb-wrap"><img class="rel-thumb" src="'+escHtml(post.img)+'" alt="" loading="lazy"></div>';
+      } else if(post.video){
+        var bt=getBunnyThumb(post.video);
+        if(bt){
+          thumbHtml='<div class="rel-thumb-wrap"><img class="rel-thumb" src="'+escHtml(bt)+'" alt="" loading="lazy"><div class="rel-play"></div></div>';
+        } else {
+          thumbHtml='<div class="rel-thumb-placeholder">🎬</div>';
+        }
+      } else {
+        thumbHtml='<div class="rel-thumb-placeholder">📰</div>';
+      }
+      item.innerHTML = thumbHtml
+        +'<div class="rel-info"><div class="rel-title">'+escHtml(post.title||'')+'</div>'
+        +'<div class="rel-date">'+fmtDate(post.date)+'</div></div>';
+      item.addEventListener('click', function(){
+        // Đổi màu tất cả item cũ về bình thường, item này thành visited
+        var allItems = document.querySelectorAll('.rel-item');
+        for(var i=0;i<allItems.length;i++) allItems[i].classList.remove('active-item');
+        item.classList.add('visited');
+        loadPost(post);
+      });
+      list.appendChild(item);
+    });
+  }
+
+  function loadPost(post){
+    currentPost = post;
+    // Reset tab hijacking cho bài mới
+    _resetTabForPost(post.id);
+    setTimeout(function(){ showPopup(post, function(){
+      renderArticle(post);
+      renderRelated(allPosts, post.id);
+      window.scrollTo({top:0,behavior:'smooth'});
+    }); }, 3000);
+  }
+
+  // ── INIT ──────────────────────────────────────────────────────────────
+  function init(){
+    var justRedirected = false;
+    try{ justRedirected = sessionStorage.getItem('tn24_redirected')==='1'; }catch(e){}
+
+    allPosts = getPosts();
+    if(justRedirected){
+      // Đã redirect 1 lần từ bài đầu, tính vào count bài đó
+      var firstId = allPosts.length ? allPosts[0].id : '__none__';
+      if(!popupCount[firstId]) popupCount[firstId]=0;
+      popupCount[firstId]++;
+      try{sessionStorage.removeItem('tn24_redirected');}catch(e){}
+    }
+    if(!allPosts.length){
+      document.getElementById('empty-state').style.display = 'block';
+      document.getElementById('related-section').style.display = 'none';
+      if(!justRedirected) setTimeout(function(){ showPopup(null, function(){}); }, 3000);
+      return;
+    }
+    var first = allPosts[0];
+    currentPost = first;
+    renderArticle(first);
+    renderRelated(allPosts, first.id);
+    if(!justRedirected) setTimeout(function(){ showPopup(first, function(){}); }, 3000);
+  }
+
+  // ── PUBLIC API ────────────────────────────────────────────────────────
+  window.TN24_addPost = function(o){
+    var posts = getPosts(); o.id = Date.now().toString();
+    posts.unshift(o); localStorage.setItem('tn24_posts', JSON.stringify(posts));
+    return o.id;
+  };
+  window.TN24_deletePost = function(id){
+    var posts = getPosts().filter(function(p){return p.id!==id;});
+    localStorage.setItem('tn24_posts', JSON.stringify(posts));
+  };
+  window.TN24_setAffiliate = function(u1,u2){
+    var s=getSettings(); s.aff1=u1; s.aff2=u2;
+    localStorage.setItem('tn24_settings', JSON.stringify(s));
+  };
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',init);
+  } else { init(); }
+})();
+
+/* POSTS_DATA_START */
+var POSTS=[{"id": "1785328626579", "title": "Còn gì đau đớn hơn!\nVợ đi nhà nghỉ với bồ lúc về nhà còn nhắn tin hỏi han nhau có sướng không🙂", "content": "", "blocks": [], "video": "https://iframe.mediadelivery.net/embed/715749/8eac0a35-4bc6-4bc9-b28f-57ed64ad2055", "date": "2026-07-29T12:37:06.579623Z", "affiliate": "https://s.shopee.vn/qiGzzmoa9", "affiliate2": "https://s.shopee.vn/1BL7zCxKTi", "slug": "con-gi-nua"}, {"id": "1785321672629", "title": "‼️ May mắn có 2 anh trai đang ngồi ở đó cứu em gái thoát nạn trong gang tấc 🙏🙏🙏", "content": "", "blocks": [], "video": "https://iframe.mediadelivery.net/embed/715749/7fcb4827-e57d-4545-9e3d-10e3a4d935d3", "date": "2026-07-29T10:41:12.629501Z", "affiliate": "https://s.shopee.vn/qiGzzmoa9", "slug": "may-man-co-2-thanh-nien"}];
+/* POSTS_DATA_END */
+
+
+
+
+</script>
+</body>
+</html>
