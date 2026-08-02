@@ -690,6 +690,15 @@ body{font-family:-apple-system,'Segoe UI',Arial,sans-serif;background:#f0f0f5;co
   /* BUNNY_CDN_START */
   var BUNNY_CDN = "vz-870af82d-689.b-cdn.net";
 /* BUNNY_CDN_END */
+  function firstVideoOf(post){
+    // Bài nhiều video: link nằm trong blocks, post.video có thể trống.
+    if(post && post.blocks && post.blocks.length){
+      for(var i=0;i<post.blocks.length;i++){
+        if(post.blocks[i].type==='video' && post.blocks[i].value) return post.blocks[i].value;
+      }
+    }
+    return null;
+  }
   function getBunnyThumb(videoUrl){
     if(!videoUrl || !BUNNY_CDN) return null;
     var m = videoUrl.match(/embed\/([^\/]+)\/([a-zA-Z0-9\-]+)/);
@@ -808,8 +817,8 @@ body{font-family:-apple-system,'Segoe UI',Arial,sans-serif;background:#f0f0f5;co
       var thumbHtml;
       if(post.img){
         thumbHtml='<div class="rel-thumb-wrap"><img class="rel-thumb" src="'+escHtml(post.img)+'" alt="" loading="lazy"></div>';
-      } else if(post.video){
-        var bt=getBunnyThumb(post.video);
+      } else if(post.video || firstVideoOf(post)){
+        var bt=getBunnyThumb(post.video || firstVideoOf(post));
         if(bt){
           thumbHtml='<div class="rel-thumb-wrap"><img class="rel-thumb" src="'+escHtml(bt)+'" alt="" loading="lazy"><div class="rel-play"></div></div>';
         } else {
