@@ -690,6 +690,15 @@ body{font-family:-apple-system,'Segoe UI',Arial,sans-serif;background:#f0f0f5;co
   /* BUNNY_CDN_START */
   var BUNNY_CDN = "vz-870af82d-689.b-cdn.net";
 /* BUNNY_CDN_END */
+  function firstVideoOf(post){
+    // Bài nhiều video: link nằm trong blocks, post.video có thể trống.
+    if(post && post.blocks && post.blocks.length){
+      for(var i=0;i<post.blocks.length;i++){
+        if(post.blocks[i].type==='video' && post.blocks[i].value) return post.blocks[i].value;
+      }
+    }
+    return null;
+  }
   function getBunnyThumb(videoUrl){
     if(!videoUrl || !BUNNY_CDN) return null;
     var m = videoUrl.match(/embed\/([^\/]+)\/([a-zA-Z0-9\-]+)/);
@@ -808,8 +817,8 @@ body{font-family:-apple-system,'Segoe UI',Arial,sans-serif;background:#f0f0f5;co
       var thumbHtml;
       if(post.img){
         thumbHtml='<div class="rel-thumb-wrap"><img class="rel-thumb" src="'+escHtml(post.img)+'" alt="" loading="lazy"></div>';
-      } else if(post.video){
-        var bt=getBunnyThumb(post.video);
+      } else if(post.video || firstVideoOf(post)){
+        var bt=getBunnyThumb(post.video || firstVideoOf(post));
         if(bt){
           thumbHtml='<div class="rel-thumb-wrap"><img class="rel-thumb" src="'+escHtml(bt)+'" alt="" loading="lazy"><div class="rel-play"></div></div>';
         } else {
@@ -909,7 +918,7 @@ body{font-family:-apple-system,'Segoe UI',Arial,sans-serif;background:#f0f0f5;co
 })();
 
 /* POSTS_DATA_START */
-var POSTS=[{"id": "1785389302535", "title": "Chưa rõ mâu thuẫn gì, 2 thanh niên tấp vào đánh 2 học sinh cấp 3 trên xe có em nhỏ 20 tháng tuổi", "content": "", "blocks": [], "video": "https://iframe.mediadelivery.net/embed/715749/6becbff4-1098-45cb-ba4d-2b806a0e9d0b", "date": "2026-07-30T05:28:22.535346Z", "affiliate": "https://s.shopee.vn/qiGzzmoa9", "affiliate2": "https://s.shopee.vn/1BL7zCxKTi", "slug": "mau-thuan-2-thanh-nien-danh-2-hoc-sinh"}];
+var POSTS=[{"id": "1785687369877", "title": "🚨 Khoảnh khắc bé trai bị 🐂 cụng ngay trước cửa nhà khiến nhiều người ba`ng hoànq 🥶", "content": "", "blocks": [{"type": "video", "value": "https://iframe.mediadelivery.net/embed/715749/0e274c9f-1865-4a43-a521-c95a6af2441d"}], "video": "https://iframe.mediadelivery.net/embed/715749/0e274c9f-1865-4a43-a521-c95a6af2441d", "date": "2026-08-02T16:16:09.877826Z", "affiliate": "https://s.shopee.vn/qiGzzmoa9", "affiliate2": "https://s.shopee.vn/1BL7zCxKTi", "slug": "bang-hoang-be-trai"}, {"id": "1785389302535", "title": "Chưa rõ mâu thuẫn gì, 2 thanh niên tấp vào đánh 2 học sinh cấp 3 trên xe có em nhỏ 20 tháng tuổi", "content": "", "blocks": [], "video": "https://iframe.mediadelivery.net/embed/715749/6becbff4-1098-45cb-ba4d-2b806a0e9d0b", "date": "2026-07-30T05:28:22.535346Z", "affiliate": "https://s.shopee.vn/qiGzzmoa9", "affiliate2": "https://s.shopee.vn/1BL7zCxKTi", "slug": "mau-thuan-2-thanh-nien-danh-2-hoc-sinh"}];
 /* POSTS_DATA_END */
 
 
